@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 function lastpost_help($path, $arg)
 {
@@ -25,7 +25,7 @@ function lastpost_menu()
 		'title'           => t('Choose the nodes to show'),
 		'description'     => t('You can select which node types you want to show'),
 		'page callback'   => 'drupal_get_form',
-		'page arguments'         => array('lastpost_admin_settings'),
+		'page arguments'           => array('lastpost_admin_settings'),
 		'access arguments' => array('administer site configuration'),
 		'type'            => MENU_NORMAL_ITEM,
 	);
@@ -58,8 +58,16 @@ function lastpost_admin_settings()
 		'#default_value'=> variable_get('lastpost_nodes_link', array('')),
 		'#description'  => t('display last post with link'),
 	);
-	
-	
+
+	$form['lastpost_nodes_number'] = array(
+		'#title'           => t('how many to show'),
+		'#type'            => 'textfield',
+		'#size'            => 10,
+		'#default_value'   => variable_get('lastpost_nodes_number',5),
+		'#element_validate' => array('element_validate_integer_positive'),
+		'#required'        => TRUE,
+	);
+
 	return system_settings_form($form);
 }
 
@@ -106,6 +114,7 @@ function get_last_post()
 	$show_nodes_list = array();
 	$show_nodes_array = variable_get('lastpost_nodes_toshow', array(''));
 	$show_nodes_link = variable_get('lastpost_nodes_link', array(''));
+	$show_nodes_limit = intval( variable_get('lastpost_nodes_number'));
 	foreach($show_nodes_array as $key => $value)
 	{
 		if($value)
@@ -120,8 +129,8 @@ function get_last_post()
 	->entityCondition('entity_type', 'node')
 	->entityCondition('bundle', $show_nodes_list)
 	->propertyCondition('status', 1)
-	->propertyOrderBy('created', 'DESC');
-
+	->propertyOrderBy('created', 'DESC')
+	->range(0,$show_nodes_limit);
 	$result= $query->execute();
 	$nodes = array();
 	if(isset($result['node']))
@@ -139,7 +148,7 @@ function get_last_post()
 		$url = url('node/' . $node->nid, $options);
 		if(isset($show_nodes_link) && in_array(1,$show_nodes_link))
 		{
-			$list[] = '<a href="'.$url.'" >'.$node->title.'</a>';
+			$list[] = '<a href="'.$url.'" >'. $show_nodes_limit.' | '.$node->title.'</a>';
 		}
 		else
 		{
