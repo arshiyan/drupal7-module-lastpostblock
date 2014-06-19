@@ -1,0 +1,4 @@
+﻿name = Lastpost
+description = dispaly last posts
+version = 0.1
+core = 7.x

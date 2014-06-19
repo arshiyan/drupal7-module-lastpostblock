@@ -1,0 +1,10 @@
+﻿<?php
+
+function lastpost_install(){
+	
+}
+
+function lastpost_uninstall(){
+	
+}
+
